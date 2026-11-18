@@ -1,0 +1,31 @@
+name: Daily Commit
+
+on:
+  schedule:
+    # Runs every day at 09:00 UTC (12:00 PM EAT / UTC+3)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  daily-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git author
+        run: |
+          git config user.name "kthesword"
+          git config user.email "kjbuta@gmail.com"
+
+      - name: Update daily heartbeat file
+        run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .daily-heartbeat
+          git add .daily-heartbeat
+          git commit -m "chore: keep committing $(date -u +'%Y-%m-%d') [skip ci]"
+
+      - name: Push commit
+        run: git push
